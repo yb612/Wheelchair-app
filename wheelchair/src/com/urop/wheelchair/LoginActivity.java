@@ -1,5 +1,5 @@
 package com.urop.wheelchair;
-
+// the user enters their registered username and password to login to their account
 import android.support.v7.app.ActionBarActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,15 +19,15 @@ public class LoginActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
 
-		mSignUpButton = (Button) findViewById(R.id.button1);
-		mRetrievePass = (Button) findViewById(R.id.button2);
-		mLoginButton = (Button) findViewById(R.id.button3);
+		mSignUpButton = (Button) findViewById(R.id.button1); //links the signUp button to a variable
+		mRetrievePass = (Button) findViewById(R.id.button2); //links the retrieve pass button to a variable
+		mLoginButton = (Button) findViewById(R.id.button3); //links the login button to a variable
 
-		mSignUpButton.setOnClickListener(new View.OnClickListener() {
+		mSignUpButton.setOnClickListener(new View.OnClickListener() {  
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
+				Intent intent = new Intent(LoginActivity.this, SignUpActivity.class); //when the signup button is pressed the screen is switched to the signup page
 				startActivity(intent);
 			}
 		});
@@ -36,7 +36,7 @@ public class LoginActivity extends ActionBarActivity {
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(LoginActivity.this, DisplayActivity.class);
+				Intent intent = new Intent(LoginActivity.this, DisplayActivity.class);//when the login button is pressed the usename and password should be checked for an existing account if true the display activity is launched
 				startActivity(intent);
 			}
 		});
@@ -45,7 +45,7 @@ public class LoginActivity extends ActionBarActivity {
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(LoginActivity.this, ForgotPassActivity.class);
+				Intent intent = new Intent(LoginActivity.this, ForgotPassActivity.class);//when the retrieve button is pressed the screen switches to the forgotPass activity
 				startActivity(intent);
 			}
 		});

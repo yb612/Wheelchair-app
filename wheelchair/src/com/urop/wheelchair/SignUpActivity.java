@@ -25,7 +25,7 @@ public class SignUpActivity extends ActionBarActivity {
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(SignUpActivity.this, DisplayActivity.class);
+				Intent intent = new Intent(SignUpActivity.this, DisplayActivity.class);//when the signup button is pressed a new user is created and automatically logged in 
 				startActivity(intent);
 				
 			}

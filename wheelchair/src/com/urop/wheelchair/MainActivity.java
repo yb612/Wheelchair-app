@@ -1,5 +1,5 @@
 package com.urop.wheelchair;
-
+// this is the screen that first shows up to the user containing an offline or an online option to stream and record data
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -18,23 +18,23 @@ public class MainActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		mLoginButton = (Button) findViewById(R.id.button1);
-		mDisplayButton = (Button) findViewById(R.id.button2);
+		mLoginButton = (Button) findViewById(R.id.button1); //links the login button to a variable
+		mDisplayButton = (Button) findViewById(R.id.button2); // *CHANGE NAME* links the start button to a variable
 
-		mLoginButton.setOnClickListener(new View.OnClickListener() {
+		mLoginButton.setOnClickListener(new View.OnClickListener() { // listens for a button press
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+				Intent intent = new Intent(MainActivity.this, LoginActivity.class); //the screen switches from the main activity to the login screen
 				startActivity(intent);
 			}
 		});
 
-		mDisplayButton.setOnClickListener(new View.OnClickListener() {
+		mDisplayButton.setOnClickListener(new View.OnClickListener() {  // listens for a button press *change it to a switch case to avoid onclick listener twice*
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(MainActivity.this, DisplayActivity.class);
+				Intent intent = new Intent(MainActivity.this, DisplayActivity.class); //the screen switches from the main activity to the display screen(where the values are then shown)
 				startActivity(intent);
 			}
 		});

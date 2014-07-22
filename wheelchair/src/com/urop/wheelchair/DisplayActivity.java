@@ -1,5 +1,5 @@
 package com.urop.wheelchair;
-
+//over here the layout would be sectioned into different parts to convey data to the user
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;

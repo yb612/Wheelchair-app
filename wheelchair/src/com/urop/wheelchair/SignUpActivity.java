@@ -11,6 +11,7 @@ import android.widget.Button;
 public class SignUpActivity extends ActionBarActivity {
 	
 	protected Button mSignUpButton;
+	//protected Button mSignUpButton;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +27,7 @@ public class SignUpActivity extends ActionBarActivity {
 			public void onClick(View v) {
 				Intent intent = new Intent(SignUpActivity.this, DisplayActivity.class);
 				startActivity(intent);
+				
 			}
 		});
 	}

@@ -1,9 +1,12 @@
 package com.urop.wheelchair;
 // this is the screen that first shows up to the user containing an offline or an online option to stream and record data
+import java.io.IOException;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,6 +15,7 @@ import android.widget.Button;
 import com.dropbox.sync.android.DbxAccountManager;
 import com.dropbox.sync.android.DbxFile;
 import com.dropbox.sync.android.DbxFileSystem;
+import com.dropbox.sync.android.DbxPath;
 
 public class MainActivity extends ActionBarActivity {
 	private static final String APP_KEY = "tlfzgltz6sef00l";
@@ -40,11 +44,13 @@ public class MainActivity extends ActionBarActivity {
 
 			@Override
 			public void onClick(View v) {
-				/*Intent intent = new Intent(MainActivity.this, LoginActivity.class); //the screen switches from the main activity to the login screen
-				startActivity(intent);*/
+				
 				Intent intent = new Intent(MainActivity.this, LoginActivity.class); //the screen switches from the main activity to the login screen
 				startActivity(intent);
 				onClickLinkToDropbox(); // links to user dropbox acc and creates a folder 
+				
+				
+				
 			}
 		});
 
@@ -69,22 +75,35 @@ public class MainActivity extends ActionBarActivity {
 	        if (resultCode == Activity.RESULT_OK) {
 	            // ... Start using Dropbox files.
 	        	
-	        	DbxFileSystem dbxFs = DbxFileSystem.forAccount(mDbxAcctMgr.getLinkedAccount());
-	        	// Create a test file only if it doesn't already exist.
-	            if (!dbxFs.exists(new DbxPath("hello.txt"))) {
-	                DbxFile testFile = dbxFs.create(new DbxPath("hello.txt"));
-	                try {
-	                    testFile.writeString("Hello Dropbox!");
-	                } finally {
-	                    testFile.close();
-	                }
-	            }
+	        	try {
+					createfile();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					Log.i(TAG, "something");
+				}
 	        } else {
 	            // ... Link failed or was cancelled by the user.
 	        }
 	    } else {
 	        super.onActivityResult(requestCode, resultCode, data);
 	    }
+	}
+
+	private void createfile() throws IOException {
+		
+		DbxFileSystem dbxFs = DbxFileSystem.forAccount(mDbxAcctMgr.getLinkedAccount());
+		DbxPath path = new DbxPath("hello.txt");
+			// Create a test file only if it doesn't already exist.
+		if(mDbxAcctMgr.hasLinkedAccount()){
+			if (!dbxFs.exists(path)) {
+			        DbxFile testFile = dbxFs.create(path);
+			        try {
+			            testFile.writeString("Hello Dropbox!");
+			        } finally {
+			            testFile.close();
+			        }
+			    }
+		}
 	}
 
 	@Override

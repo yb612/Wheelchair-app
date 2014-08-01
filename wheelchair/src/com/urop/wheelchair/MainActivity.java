@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.dropbox.sync.android.DbxAccountManager;
 import com.dropbox.sync.android.DbxFile;
@@ -27,6 +28,7 @@ public class MainActivity extends ActionBarActivity {
 	
 	protected Button mLoginButton;
 	protected Button mDisplayButton;
+	protected Button mLink;
 
 	private DbxAccountManager mDbxAcctMgr;   //create a DbxAccountManager object. This object lets you link to a Dropbox user's account
 	
@@ -39,20 +41,35 @@ public class MainActivity extends ActionBarActivity {
 
 		mLoginButton = (Button) findViewById(R.id.button1); //links the login button to a variable
 		mDisplayButton = (Button) findViewById(R.id.button2); // *CHANGE NAME* links the start button to a variable
-
-		mLoginButton.setOnClickListener(new View.OnClickListener() { // listens for a button press
+		mLink = (Button) findViewById(R.id.button3);
+		
+		/*mLoginButton.setOnClickListener(new View.OnClickListener() { // listens for a button press
 
 			@Override
 			public void onClick(View v) {
 				
-				Intent intent = new Intent(MainActivity.this, LoginActivity.class); //the screen switches from the main activity to the login screen
-				startActivity(intent);
 				onClickLinkToDropbox(); // links to user dropbox acc and creates a folder 
+
+				if(mDbxAcctMgr.hasLinkedAccount()){
+					Intent intent = new Intent(MainActivity.this, LoginActivity.class); //the screen switches from the main activity to the login screen
+					startActivity(intent);	
+				} 
 				
 				
 				
 			}
+		});*/
+		
+		mLink.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				onClickLinkToDropbox();
+			}
 		});
+		
+		
 
 		mDisplayButton.setOnClickListener(new View.OnClickListener() {  // listens for a button press *change it to a switch case to avoid onclick listener twice*
 
@@ -75,12 +92,15 @@ public class MainActivity extends ActionBarActivity {
 	        if (resultCode == Activity.RESULT_OK) {
 	            // ... Start using Dropbox files.
 	        	
-	        	try {
+	        	if(mDbxAcctMgr.hasLinkedAccount()){
+	        		Toast.makeText(this, "linked", Toast.LENGTH_SHORT).show();
+	        	}
+	        	/*try {
 					createfile();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					Log.i(TAG, "something");
-				}
+				}*/
 	        } else {
 	            // ... Link failed or was cancelled by the user.
 	        }
@@ -91,18 +111,27 @@ public class MainActivity extends ActionBarActivity {
 
 	private void createfile() throws IOException {
 		
-		DbxFileSystem dbxFs = DbxFileSystem.forAccount(mDbxAcctMgr.getLinkedAccount());
+		// Create DbxFileSystem for synchronized file access.
+        DbxFileSystem dbxFs = DbxFileSystem.forAccount(mDbxAcctMgr.getLinkedAccount());
+
 		DbxPath path = new DbxPath("hello.txt");
 			// Create a test file only if it doesn't already exist.
-		if(mDbxAcctMgr.hasLinkedAccount()){
-			if (!dbxFs.exists(path)) {
-			        DbxFile testFile = dbxFs.create(path);
-			        try {
-			            testFile.writeString("Hello Dropbox!");
-			        } finally {
-			            testFile.close();
-			        }
-			    }
+		DbxFile testFile = dbxFs.create(path);
+		Toast.makeText(this, "file created", Toast.LENGTH_SHORT).show();
+		try {
+		    testFile.writeString("Hello Dropbox!");
+			Toast.makeText(this, "text added", Toast.LENGTH_SHORT).show();
+
+
+
+			    String contents = testFile.readString();
+			    Log.d("Dropbox Test", "File contents: " + contents);
+				Toast.makeText(this, "text read", Toast.LENGTH_SHORT).show();
+
+
+
+		} finally {
+		    testFile.close();
 		}
 	}
 
@@ -125,3 +154,4 @@ public class MainActivity extends ActionBarActivity {
 		return super.onOptionsItemSelected(item);
 	}
 }
+

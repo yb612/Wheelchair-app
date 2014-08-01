@@ -48,12 +48,23 @@ public class MainActivity extends ActionBarActivity {
 			@Override
 			public void onClick(View v) {
 				
+
+				
+
 				onClickLinkToDropbox(); // links to user dropbox acc and creates a folder 
+
 
 				if(mDbxAcctMgr.hasLinkedAccount()){
 					Intent intent = new Intent(MainActivity.this, LoginActivity.class); //the screen switches from the main activity to the login screen
 					startActivity(intent);	
 				} 
+
+				
+				if(mDbxAcctMgr.hasLinkedAccount()){
+					Intent intent = new Intent(MainActivity.this, LoginActivity.class); //the screen switches from the main activity to the login screen
+					startActivity(intent);	
+				}
+
 				
 				
 				
@@ -97,6 +108,7 @@ public class MainActivity extends ActionBarActivity {
 	        	}
 	        	/*try {
 					createfile();
+					
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					Log.i(TAG, "something");
@@ -114,9 +126,12 @@ public class MainActivity extends ActionBarActivity {
 		// Create DbxFileSystem for synchronized file access.
         DbxFileSystem dbxFs = DbxFileSystem.forAccount(mDbxAcctMgr.getLinkedAccount());
 
+		
+
 		DbxPath path = new DbxPath("hello.txt");
 			// Create a test file only if it doesn't already exist.
 		DbxFile testFile = dbxFs.create(path);
+
 		Toast.makeText(this, "file created", Toast.LENGTH_SHORT).show();
 		try {
 		    testFile.writeString("Hello Dropbox!");
@@ -130,9 +145,29 @@ public class MainActivity extends ActionBarActivity {
 
 
 
+
+		Toast.makeText(this, "file created", Toast.LENGTH_LONG).show();
+		try {
+		    testFile.writeString("Hello Dropbox!");
+			Toast.makeText(this, "text added", Toast.LENGTH_LONG).show();
+			
+			
+			
+			    String contents1 = testFile.readString();
+			    Log.d("Dropbox Test", "File contents: " + contents1);
+				Toast.makeText(this, "text read", Toast.LENGTH_LONG).show();
+
+			
+			
+
 		} finally {
 		    testFile.close();
+		 }
 		}
+		finally {
+		    testFile.close();
+		 }
+		
 	}
 
 	@Override

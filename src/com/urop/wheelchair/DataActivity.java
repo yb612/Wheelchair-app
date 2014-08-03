@@ -1,23 +1,29 @@
 package com.urop.wheelchair;
 // the user enters their registered username and password to login to their account
-import java.io.File;
-
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 
 public class DataActivity extends ActionBarActivity {
 
 	protected Button mLoginButton;
 	protected Button mRetrievePass;
 	protected Button mSignUpButton;
+	ListView l;
+	String[] days = {"sunday","monday"};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_data);
+		
+		l = (ListView)findViewById(R.id.list);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,days);
+		l.setAdapter(adapter);
 		
 		
 		//testing the list

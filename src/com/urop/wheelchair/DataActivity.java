@@ -6,6 +6,7 @@ import java.util.List;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -14,6 +15,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.dropbox.sync.android.DbxAccountManager;
+import com.dropbox.sync.android.DbxException;
 import com.dropbox.sync.android.DbxFile;
 import com.dropbox.sync.android.DbxFileInfo;
 import com.dropbox.sync.android.DbxFileSystem;
@@ -48,10 +50,11 @@ public class DataActivity extends ActionBarActivity {
 		setContentView(R.layout.activity_data);
 		mDbxAcctMgr = DbxAccountManager.getInstance(getApplicationContext(), APP_KEY, APP_SECRET);
 		
+		int ok = 0;
 		String[] some = new String[2];
 		List<DbxFileInfo> entries =  new ArrayList<DbxFileInfo>();
-		String[] test =  new String[entries.size()];
-		entries.toArray(test);
+		
+		String[] test =  new String[10];
 		String[] fnames = new String[entries.size()];
 		 DbxPath path;
 		 path = new DbxPath("/"); 
@@ -60,41 +63,60 @@ public class DataActivity extends ActionBarActivity {
 	     ArrayList<String> result=  new ArrayList<String>();
 	     DbxFileSystem fs = getDbxFS();
      	
+	     List<DbxFileInfo> infos;
+		try {
+			infos = mDbxFs.listFolder(DbxPath.ROOT);
+			if(infos.isEmpty()){
+				Toast.makeText(this, "its empty :|", Toast.LENGTH_SHORT).show();
 
+			}
+			else{
+				
+				Toast.makeText(this, "its full :)", Toast.LENGTH_SHORT).show();
+				test[0] = infos.toArray().toString();
+			}
+		} catch (DbxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         if(isAuthenticated()==false || fs==null){
         	Toast.makeText(this, "not switched", Toast.LENGTH_SHORT).show();
 
         }
-        try {
-        	DbxFile dbFile;
-        	DbxPath dbPath = path;
-        	if (mDbxFs.exists(dbPath)){
-        		dbFile = mDbxFs.open(dbPath);
-        	}else{
-        		dbFile = mDbxFs.create(dbPath);
-        	}
-        	
-        	String [] lines = dbFile.readString().split("\r|\n|\r\n");
-            dbFile.close();
-            for (String line: lines) {
-                if (!line.trim().equals("")) {
-                    result.add(line);
-                }
-                
-            }
-            
-            int index = 0;
-            for (DbxFileInfo value: entries) {
-            	fnames[index] = (String) value.toString();
-            	index++;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }	 
+        Toast.makeText(this, "entered try", Toast.LENGTH_SHORT).show();
+		
+
+		DbxFile dbFile;
+		DbxPath dbPath = path;
+		
+		//entries.get(0);
+		
+		
+		
+		int index = 0;
+		
+		if(entries.isEmpty()){
+			Toast.makeText(this, "its empty :(", Toast.LENGTH_SHORT).show();
+		}else{
+			Toast.makeText(this, "its not empty :)", Toast.LENGTH_SHORT).show();
+		}
+		
+		for (DbxFileInfo value: entries) {
+			Toast.makeText(this, "entered", Toast.LENGTH_SHORT).show();
+			ok = 15;
+			//fnames[index] =  value.path.toString();
+			fnames[index] =  String.valueOf(value);
+			index++;
+		}	 
 			 
+		if(entries.isEmpty()){
+			Toast.makeText(this, "its empty :'(", Toast.LENGTH_SHORT).show();
+		}else{
+			Toast.makeText(this, "its not empty :)", Toast.LENGTH_SHORT).show();
+		} 
 		     
-		     
-		 
+    	Toast.makeText(this,String.valueOf(ok), Toast.LENGTH_SHORT).show();
+
 
 		/*
 		String[] fnames = null;

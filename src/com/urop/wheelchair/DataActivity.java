@@ -54,7 +54,7 @@ public class DataActivity extends ActionBarActivity {
 		String[] some = new String[2];
 		List<DbxFileInfo> entries =  new ArrayList<DbxFileInfo>();
 		
-		String[] test =  new String[10];
+		
 		String[] fnames = new String[entries.size()];
 		 DbxPath path;
 		 path = new DbxPath("/"); 
@@ -63,9 +63,11 @@ public class DataActivity extends ActionBarActivity {
 	     ArrayList<String> result=  new ArrayList<String>();
 	     DbxFileSystem fs = getDbxFS();
      	
-	     List<DbxFileInfo> infos;
+	     List<DbxFileInfo> infos = new ArrayList<DbxFileInfo>();
 		try {
 			infos = mDbxFs.listFolder(DbxPath.ROOT);
+			String[] test =  new String[infos.size()];
+			int i = 0;
 			if(infos.isEmpty()){
 				Toast.makeText(this, "its empty :|", Toast.LENGTH_SHORT).show();
 
@@ -73,7 +75,19 @@ public class DataActivity extends ActionBarActivity {
 			else{
 				
 				Toast.makeText(this, "its full :)", Toast.LENGTH_SHORT).show();
-				test[0] = infos.toArray().toString();
+				Log.d("MyApp","starting to print");
+			    // let us print all the elements available in list
+			    for (DbxFileInfo number : infos) {
+			    	Log.d("MyApp","Something = " + number.path.toString().replace("/", ""));
+			    	test[i] = number.path.toString().replace("/", "");
+			    	Log.d("MyApp","test array = " + test[i]);
+			    	i++;
+			    } 
+			    l = (ListView)findViewById(R.id.list);
+				ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,test);
+				l.setAdapter(adapter);
+				Log.d("MyApp","done printing");
+
 			}
 		} catch (DbxException e) {
 			// TODO Auto-generated catch block
@@ -101,13 +115,7 @@ public class DataActivity extends ActionBarActivity {
 			Toast.makeText(this, "its not empty :)", Toast.LENGTH_SHORT).show();
 		}
 		
-		for (DbxFileInfo value: entries) {
-			Toast.makeText(this, "entered", Toast.LENGTH_SHORT).show();
-			ok = 15;
-			//fnames[index] =  value.path.toString();
-			fnames[index] =  String.valueOf(value);
-			index++;
-		}	 
+			 
 			 
 		if(entries.isEmpty()){
 			Toast.makeText(this, "its empty :'(", Toast.LENGTH_SHORT).show();
@@ -137,9 +145,7 @@ public class DataActivity extends ActionBarActivity {
 
        
 		
-		l = (ListView)findViewById(R.id.list);
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,test);
-		l.setAdapter(adapter);
+		
 		
 		Toast.makeText(this, "done loading", Toast.LENGTH_SHORT).show();
 		

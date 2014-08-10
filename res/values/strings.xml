@@ -13,5 +13,11 @@
     <string name="new_note_dialog_title">New note:</string>
     <string name="new_note_name_hint">my_note</string>
     <string name="new_note_confirm">Create</string>
+    <string-array name="select_option">
+        <item>View</item>
+        <item>Rename</item>
+        <item>Info</item>
+        <item>Delete</item>
+    </string-array>
 
 </resources>

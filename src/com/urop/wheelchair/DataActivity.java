@@ -4,18 +4,25 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dropbox.sync.android.DbxAccountManager;
 import com.dropbox.sync.android.DbxException;
+import com.dropbox.sync.android.DbxException.Unauthorized;
 import com.dropbox.sync.android.DbxFile;
 import com.dropbox.sync.android.DbxFileInfo;
 import com.dropbox.sync.android.DbxFileSystem;
@@ -86,6 +93,68 @@ public class DataActivity extends ActionBarActivity {
 			    l = (ListView)findViewById(R.id.list);
 				ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,test);
 				l.setAdapter(adapter);
+				l.setOnItemClickListener(new OnItemClickListener() {
+
+					@Override
+					public void onItemClick(AdapterView<?> arg0, View arg1,
+							int arg2, long arg3) {
+						// TODO Auto-generated method stub
+						TextView temp = (TextView) arg1;
+						
+						final DbxPath delPath = new DbxPath((String) temp.getText());
+			        	Toast.makeText(DataActivity.this, temp.getText(), Toast.LENGTH_SHORT).show();
+			        	
+			        	// 1. Instantiate an AlertDialog.Builder with its constructor
+			        	AlertDialog.Builder builder = new AlertDialog.Builder(DataActivity.this);
+
+			        	// 2. Chain together various setter methods to set the dialog characteristics
+			        	builder.setTitle(temp.getText()).setItems(R.array.select_option, new DialogInterface.OnClickListener() {
+								
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									// TODO Auto-generated method stub
+									
+						        	Toast.makeText(DataActivity.this, "gamda", Toast.LENGTH_SHORT).show();
+						        	//begins
+						        	switch(which) {
+									case 0: // View file
+										//to be added later
+										break;
+									case 1: // Rename file
+										//to be added later
+										break;
+									case 2: // provides info like date modified
+										//to be added later
+										break;
+									case 3: // delete file
+										
+										try {
+											Log.d("This file is deleted", delPath.toString());
+											DbxFileSystem.forAccount(mDbxAcctMgr.getLinkedAccount()).delete(delPath);
+								        	Toast.makeText(DataActivity.this, "deleted i think", Toast.LENGTH_SHORT).show();
+
+										} catch (Unauthorized e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										} catch (DbxException e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
+										break;
+								}
+						        	//ends
+								}
+							});
+
+			        	// 3. Get the AlertDialog from create()
+			        	AlertDialog dialog = builder.create();
+			        	dialog.show();
+			        	Toast.makeText(DataActivity.this, "finish dialog", Toast.LENGTH_SHORT).show();
+					}
+				
+				
+				});
+				
 				Log.d("MyApp","done printing");
 
 			}

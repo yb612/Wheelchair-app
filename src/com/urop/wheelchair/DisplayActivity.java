@@ -1,7 +1,15 @@
 package com.urop.wheelchair;
 //over here the layout would be sectioned into different parts to convey data to the user
+import java.util.Set;
+
 import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
@@ -9,8 +17,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.dropbox.sync.android.DbxAccountManager;
@@ -25,17 +35,20 @@ public class DisplayActivity extends ActionBarActivity {
     private static final String APP_SECRET = "2d47gsoisbttl84";
     private static final String TAG = "wheelchairActivity";
     
+    private ArrayAdapter<String> mArrayAdapter;//bt
+
     static final int REQUEST_LINK_TO_DBX = 0;  // This value is up to you
+    static final int REQUEST_ENABLE_BT = 1;  // This value is up to you passses this number if successful
 
-
+    private BroadcastReceiver mReceiver;//bt
 
 	protected Button mCheck;
 	protected Button mUnlink;
 
 	private DbxAccountManager mDbxAcctMgr;   //create a DbxAccountManager object. This object lets you link to a Dropbox user's account
+	private BluetoothAdapter mBluetoothAdapter; // object to btoot with
 
-
-
+	private ListView listViewPairedDevices = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,12 +56,65 @@ public class DisplayActivity extends ActionBarActivity {
 		setContentView(R.layout.activity_display);
 		mDbxAcctMgr = DbxAccountManager.getInstance(getApplicationContext(), APP_KEY, APP_SECRET);
 
-
+		
 
 		mCheck = (Button) findViewById(R.id.button1);
 		mUnlink = (Button) findViewById(R.id.button2);
 
 
+		//start bluetooth stuff
+		
+		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		if (mBluetoothAdapter == null) {
+		    // Device does not support Bluetooth
+    		Toast.makeText(this, "phone has no btoot", Toast.LENGTH_SHORT).show();
+		}
+		
+		if (!mBluetoothAdapter.isEnabled()) {
+		    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+		    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+		}
+		
+		listViewPairedDevices = (ListView) findViewById(R.id.listViewPairedDevices);
+		mArrayAdapter= new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);  //bt
+		
+		Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+		
+		// If there are paired devices
+		if (pairedDevices.size() > 0) {
+		    // Loop through paired devices
+		    for (BluetoothDevice device : pairedDevices) {
+		        
+				// Add the name and address to an array adapter to show in a ListView
+		        mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+		    }
+		}else{
+			mArrayAdapter.add("No Devices");
+		}
+		
+		
+		listViewPairedDevices.setAdapter(mArrayAdapter);
+		
+		mBluetoothAdapter.startDiscovery();
+		
+		// Create a BroadcastReceiver for ACTION_FOUND
+		mReceiver = new BroadcastReceiver() {
+		    public void onReceive(Context context, Intent intent) {
+		        String action = intent.getAction();
+		        // When discovery finds a device
+		        if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+		            // Get the BluetoothDevice object from the Intent
+		            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+		            // Add the name and address to an array adapter to show in a ListView
+		            mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+		        }
+		    }
+		};
+		// Register the BroadcastReceiver
+		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+		registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
+		//bt ends
+		
 		mCheck.setOnClickListener(new View.OnClickListener() {
 
 			@Override

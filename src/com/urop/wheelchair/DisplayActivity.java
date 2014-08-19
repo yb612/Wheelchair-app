@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -93,10 +94,12 @@ public class DisplayActivity extends ActionBarActivity {
 		listViewPairedDevices = (ListView) findViewById(R.id.listViewPairedDevices);
 		mArrayAdapter = new ArrayAdapter<String>(this,
 				android.R.layout.simple_list_item_1); // bt
-
+		String hey = "00:18:96:B0:02:87";
 		final Set<BluetoothDevice> pairedDevices = mBluetoothAdapter
 				.getBondedDevices();
-
+	  //  final BluetoothDevice adatest = mBluetoothAdapter//******************************
+		//		.getRemoteDevice(hey);
+		
 		// If there are paired devices
 		if (pairedDevices.size() > 0) {
 			// Loop through paired devices
@@ -119,6 +122,7 @@ public class DisplayActivity extends ActionBarActivity {
 
 		// Create a BroadcastReceiver for ACTION_FOUND
 		mReceiver = new BroadcastReceiver() {
+			@SuppressLint("NewApi")
 			public void onReceive(Context context, Intent intent) {
 				String action = intent.getAction();
 				// When discovery finds a device
@@ -130,6 +134,10 @@ public class DisplayActivity extends ActionBarActivity {
 					// ListView
 					mArrayAdapter.add(device.getName() + "\n"
 							+ device.getAddress());
+					//device.createBond(); iffy solvent
+				//	adatest.createBond();//***********************************************
+					
+				//	Log.d("contents of device", adatest.toString());
 				}
 			}
 		};
@@ -141,6 +149,7 @@ public class DisplayActivity extends ActionBarActivity {
 		// making a clickable list
 		listViewPairedDevices.setOnItemClickListener(new OnItemClickListener() {
 
+			@SuppressLint("NewApi")
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
@@ -148,28 +157,14 @@ public class DisplayActivity extends ActionBarActivity {
 				TextView temp = (TextView) arg1;
 				Toast.makeText(DisplayActivity.this, temp.getText(),
 						Toast.LENGTH_SHORT).show();
+				String surgery = temp.getText().toString();
+				String secondline = surgery.substring(22);
+				Log.d("commencing surgery", surgery);
+				Log.d("first round", secondline);
 				
-				
-				if (pairedDevices.size() > 0) {
-					Toast.makeText(DisplayActivity.this, "entered if",
-							Toast.LENGTH_SHORT).show();
-					// Loop through paired devices
-					/*for (BluetoothDevice test : pairedDevices) {
-						if (test.getName().equals("Adafruit EZ-Link 0287")) {
-							
-							gDevice = test;
-							break;
-							
-						} else {
-							Toast.makeText(DisplayActivity.this, "No match",
-									Toast.LENGTH_SHORT).show();
-						}
-					}*/
-					Log.d("btoot", String.valueOf(pairedDevices.size()));
+				 BluetoothDevice letssee = mBluetoothAdapter.getRemoteDevice(secondline);
+				 letssee.createBond();
 
-				}
-				
-				ConnectThread something = new ConnectThread(gDevice);
 			}
 
 		});

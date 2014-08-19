@@ -2,6 +2,8 @@ package com.urop.wheelchair;
 
 //over here the layout would be sectioned into different parts to convey data to the user
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -51,9 +53,13 @@ public class DisplayActivity extends ActionBarActivity {
 											// this number if successful
 
 	private BroadcastReceiver mReceiver;// bt
-
+	final List<String> mAddress = new ArrayList<String>();
+	String adaddress = null; 
 	protected Button mCheck;
 	protected Button mUnlink;
+	protected Button mConnect;
+	
+	BluetoothSocket btSocket = null;
 
 	private DbxAccountManager mDbxAcctMgr; // create a DbxAccountManager object.
 											// This object lets you link to a
@@ -75,6 +81,8 @@ public class DisplayActivity extends ActionBarActivity {
 
 		mCheck = (Button) findViewById(R.id.button1);
 		mUnlink = (Button) findViewById(R.id.button2);
+		mConnect = (Button) findViewById(R.id.button3);
+
 
 		// start bluetooth stuff
 
@@ -97,6 +105,7 @@ public class DisplayActivity extends ActionBarActivity {
 		String hey = "00:18:96:B0:02:87";
 		final Set<BluetoothDevice> pairedDevices = mBluetoothAdapter
 				.getBondedDevices();
+		
 	  //  final BluetoothDevice adatest = mBluetoothAdapter//******************************
 		//		.getRemoteDevice(hey);
 		
@@ -109,6 +118,8 @@ public class DisplayActivity extends ActionBarActivity {
 				// ListView
 				mArrayAdapter
 						.add(device.getName() + "\n" + device.getAddress());
+				mAddress.add(device.getAddress()); // the address array
+				
 			}
 		} else {
 			mArrayAdapter.add("No Devices");
@@ -134,6 +145,7 @@ public class DisplayActivity extends ActionBarActivity {
 					// ListView
 					mArrayAdapter.add(device.getName() + "\n"
 							+ device.getAddress());
+					mAddress.add(device.getAddress()); // the address array
 					//device.createBond(); iffy solvent
 				//	adatest.createBond();//***********************************************
 					
@@ -158,7 +170,9 @@ public class DisplayActivity extends ActionBarActivity {
 				Toast.makeText(DisplayActivity.this, temp.getText(),
 						Toast.LENGTH_SHORT).show();
 				String surgery = temp.getText().toString();
-				String secondline = surgery.substring(22);
+				//String secondline = surgery.substring(22);
+				String secondline = mAddress.get(arg2);
+				adaddress = mAddress.get(arg2);
 				Log.d("commencing surgery", surgery);
 				Log.d("first round", secondline);
 				
@@ -181,6 +195,17 @@ public class DisplayActivity extends ActionBarActivity {
 
 		});
 
+		mConnect.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Toast.makeText(DisplayActivity.this, "connect pressed",Toast.LENGTH_SHORT).show();  // attempting to connect
+				Connect();
+			}
+
+		});
+		
 		mUnlink.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -194,6 +219,36 @@ public class DisplayActivity extends ActionBarActivity {
 
 		// test
 
+	}
+
+	protected void Connect() {
+		// TODO Auto-generated method stub
+		
+		BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(adaddress);
+		Log.d("", "Connecting to ... " + device);
+		mBluetoothAdapter.cancelDiscovery();
+		try {
+                        btSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
+/* Here is the part the connection is made, by asking the device to create a RfcommSocket (Unsecure socket I guess), It map a port for us or something like that */
+			btSocket.connect();
+			Log.d("", "Connection made.");
+			Toast.makeText(DisplayActivity.this, "connection made :)",Toast.LENGTH_SHORT).show();  // attempting to connect
+
+		} catch (IOException e) {
+			try {
+				btSocket.close();
+			} catch (IOException e2) {
+				Log.d("", "Unable to end the connection");
+				Toast.makeText(DisplayActivity.this, "Unable to end the connection",Toast.LENGTH_SHORT).show();  // attempting to connect
+
+			}
+			Log.d("", "Socket creation failed");
+			Toast.makeText(DisplayActivity.this, "Socket creation failed",Toast.LENGTH_SHORT).show();  // attempting to connect
+
+		}
+		
+		//beginListenForData();
+               /* this is a method used to read what the Arduino says for example when you write Serial.print("Hello world.") in your Arduino code */
 	}
 
 	private class ConnectThread extends Thread {

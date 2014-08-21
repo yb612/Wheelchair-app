@@ -2,6 +2,8 @@ package com.urop.wheelchair;
 
 //over here the layout would be sectioned into different parts to convey data to the user
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -59,14 +61,16 @@ public class DisplayActivity extends ActionBarActivity {
 	protected Button mUnlink;
 	protected Button mConnect;
 	
-	BluetoothSocket btSocket = null;
+	BluetoothDevice device = null;
+	
+	private BluetoothSocket btSocket = null;
 
 	private DbxAccountManager mDbxAcctMgr; // create a DbxAccountManager object.
 											// This object lets you link to a
 											// Dropbox user's account
 	private BluetoothAdapter mBluetoothAdapter; // object to btoot with
 	public static final UUID MY_UUID = UUID
-			.fromString("5696c402-d089-4837-929d-539ce84b55f0");
+			.fromString("00001101-0000-1000-8000-00805F9B34FB");//   
 
 	BluetoothDevice gDevice;
 
@@ -174,10 +178,12 @@ public class DisplayActivity extends ActionBarActivity {
 				String secondline = mAddress.get(arg2);
 				adaddress = mAddress.get(arg2);
 				Log.d("commencing surgery", surgery);
-				Log.d("first round", secondline);
+				Log.d("first round", adaddress);
 				
-				 BluetoothDevice letssee = mBluetoothAdapter.getRemoteDevice(secondline);
+				 BluetoothDevice letssee = mBluetoothAdapter.getRemoteDevice(adaddress);
+				 device = letssee;
 				 letssee.createBond();
+				
 
 			}
 
@@ -221,85 +227,56 @@ public class DisplayActivity extends ActionBarActivity {
 
 	}
 
+	
+	@SuppressLint("NewApi")
 	protected void Connect() {
 		// TODO Auto-generated method stub
+		//BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(adaddress);
+		Log.d("connect", "Connecting to ... " + device);
+		Log.d("connecting address", adaddress);
+
 		
-		BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(adaddress);
-		Log.d("", "Connecting to ... " + device);
 		mBluetoothAdapter.cancelDiscovery();
-		try {
-                        btSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
-/* Here is the part the connection is made, by asking the device to create a RfcommSocket (Unsecure socket I guess), It map a port for us or something like that */
-			btSocket.connect();
-			Log.d("", "Connection made.");
-			Toast.makeText(DisplayActivity.this, "connection made :)",Toast.LENGTH_SHORT).show();  // attempting to connect
-
-		} catch (IOException e) {
-			try {
-				btSocket.close();
-			} catch (IOException e2) {
-				Log.d("", "Unable to end the connection");
-				Toast.makeText(DisplayActivity.this, "Unable to end the connection",Toast.LENGTH_SHORT).show();  // attempting to connect
-
-			}
-			Log.d("", "Socket creation failed");
-			Toast.makeText(DisplayActivity.this, "Socket creation failed",Toast.LENGTH_SHORT).show();  // attempting to connect
-
-		}
+		Log.d("discovery canceled", "canceled discoverey");
 		
-		//beginListenForData();
-               /* this is a method used to read what the Arduino says for example when you write Serial.print("Hello world.") in your Arduino code */
+		try {
+		    BluetoothDevice mDevice = mBluetoothAdapter.getRemoteDevice(adaddress);
+		    Method m = mDevice.getClass().getMethod("createRfcommSocket",
+		                new Class[] { int.class });
+		    btSocket = (BluetoothSocket) m.invoke(mDevice, Integer.valueOf(1));
+		    btSocket.connect();
+		    Log.d("connect", "Connection made.");
+		} catch (NoSuchMethodException e) {
+		    Log.d("isuue", e.toString());
+
+		} catch (SecurityException e2) {
+		    Log.d("isuue", e2.toString());
+
+		} catch (IllegalArgumentException e3) {
+		    Log.d("isuue", e3.toString());
+
+		} catch (IllegalAccessException e4) {
+		    Log.d("isuue", e4.toString());
+
+		} catch (InvocationTargetException e5) {
+		    Log.d("isuue", e5.toString());
+
+		} catch (Exception e6) {
+		    Log.d("isuue", e6.toString());
+
+		}
+		   
+					Log.d("socket", btSocket.toString());
+					Log.d("the device", btSocket.getRemoteDevice().toString());
+					
+/* Here is the part the connection is made, by asking the device to create a RfcommSocket (Unsecure socket I guess), It map a port for us or something like that */
+		 			
+        // 	btSocket.connect();
+		
+		Toast.makeText(DisplayActivity.this, "connection made :)",Toast.LENGTH_SHORT).show();  // attempting to connect
 	}
 
-	private class ConnectThread extends Thread {
-		private final BluetoothSocket mmSocket;
-		private final BluetoothDevice mmDevice;
 
-		public ConnectThread(BluetoothDevice device) {
-			// Use a temporary object that is later assigned to mmSocket,
-			// because mmSocket is final
-			BluetoothSocket tmp = null;
-			mmDevice = device;
-
-			// Get a BluetoothSocket to connect with the given BluetoothDevice
-			try {
-				// MY_UUID is the app's UUID string, also used by the server
-				// code
-				tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
-			} catch (IOException e) {
-			}
-			mmSocket = tmp;
-		}
-
-		public void run() {
-			// Cancel discovery because it will slow down the connection
-			mBluetoothAdapter.cancelDiscovery();
-
-			try {
-				// Connect the device through the socket. This will block
-				// until it succeeds or throws an exception
-				mmSocket.connect();
-			} catch (IOException connectException) {
-				// Unable to connect; close the socket and get out
-				try {
-					mmSocket.close();
-				} catch (IOException closeException) {
-				}
-				return;
-			}
-
-			// Do work to manage the connection (in a separate thread)
-			// manageConnectedSocket(mmSocket);
-		}
-
-		/** Will cancel an in-progress connection, and close the socket */
-		public void cancel() {
-			try {
-				mmSocket.close();
-			} catch (IOException e) {
-			}
-		}
-	}
 
 	private void printf() {// using this to check if user link carries on
 		Toast.makeText(this, "hello", Toast.LENGTH_SHORT).show();

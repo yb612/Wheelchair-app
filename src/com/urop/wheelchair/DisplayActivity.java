@@ -60,6 +60,7 @@ public class DisplayActivity extends ActionBarActivity {
 	protected Button mCheck;
 	protected Button mUnlink;
 	protected Button mConnect;
+	protected Button mDisconnect;
 	
 	BluetoothDevice device = null;
 	
@@ -86,6 +87,7 @@ public class DisplayActivity extends ActionBarActivity {
 		mCheck = (Button) findViewById(R.id.button1);
 		mUnlink = (Button) findViewById(R.id.button2);
 		mConnect = (Button) findViewById(R.id.button3);
+		mDisconnect = (Button) findViewById(R.id.button4);
 
 
 		// start bluetooth stuff
@@ -212,6 +214,17 @@ public class DisplayActivity extends ActionBarActivity {
 
 		});
 		
+		mDisconnect.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Toast.makeText(DisplayActivity.this, "disconnect pressed",Toast.LENGTH_SHORT).show();  // attempting to connect
+				DisConnect();
+			}
+
+		});
+		
 		mUnlink.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -227,7 +240,21 @@ public class DisplayActivity extends ActionBarActivity {
 
 	}
 
-	
+	@SuppressLint("NewApi")
+	protected void DisConnect() {
+		// TODO Auto-generated method stub
+		try {
+			btSocket.close();
+			Log.d("disconnect", "successfully disconnected");
+			Toast.makeText(DisplayActivity.this, "disconnected :(",Toast.LENGTH_SHORT).show();  // attempting to connect
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+
 	@SuppressLint("NewApi")
 	protected void Connect() {
 		// TODO Auto-generated method stub
@@ -246,6 +273,7 @@ public class DisplayActivity extends ActionBarActivity {
 		    btSocket = (BluetoothSocket) m.invoke(mDevice, Integer.valueOf(1));
 		    btSocket.connect();
 		    Log.d("connect", "Connection made.");
+			Toast.makeText(DisplayActivity.this, "connected :)",Toast.LENGTH_SHORT).show();  // attempting to connect
 		} catch (NoSuchMethodException e) {
 		    Log.d("isuue", e.toString());
 

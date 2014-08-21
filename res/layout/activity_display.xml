@@ -45,12 +45,21 @@
     </ListView>
 
     <Button
+        android:id="@+id/button4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/button3"
+        android:layout_alignBottom="@+id/button3"
+        android:layout_alignRight="@+id/button1"
+        android:text="Disconnect" />
+
+    <Button
         android:id="@+id/button3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/button1"
-        android:layout_marginTop="42dp"
-        android:layout_toRightOf="@+id/button2"
+        android:layout_marginTop="46dp"
+        android:layout_toLeftOf="@+id/button1"
         android:text="connect" />
 
 </RelativeLayout>

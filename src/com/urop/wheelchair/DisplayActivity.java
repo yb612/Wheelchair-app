@@ -2,6 +2,8 @@ package com.urop.wheelchair;
 
 //over here the layout would be sectioned into different parts to convey data to the user
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -61,6 +64,9 @@ public class DisplayActivity extends ActionBarActivity {
 	protected Button mUnlink;
 	protected Button mConnect;
 	protected Button mDisconnect;
+	TextView myLabel;
+
+	TextView Result;
 	
 	BluetoothDevice device = null;
 	
@@ -72,7 +78,16 @@ public class DisplayActivity extends ActionBarActivity {
 	private BluetoothAdapter mBluetoothAdapter; // object to btoot with
 	public static final UUID MY_UUID = UUID
 			.fromString("00001101-0000-1000-8000-00805F9B34FB");//   
-
+	
+	
+	volatile boolean stopWorker = false;
+	Thread workerThread;
+	int readBufferPosition = 0;
+	byte[] readBuffer = new byte[1024];
+	int counter;
+	OutputStream mmOutputStream;
+	InputStream mmInputStream;
+	
 	BluetoothDevice gDevice;
 
 	private ListView listViewPairedDevices = null;
@@ -88,7 +103,8 @@ public class DisplayActivity extends ActionBarActivity {
 		mUnlink = (Button) findViewById(R.id.button2);
 		mConnect = (Button) findViewById(R.id.button3);
 		mDisconnect = (Button) findViewById(R.id.button4);
-
+		Result = (TextView) findViewById(R.id.textView2);
+		myLabel = (TextView)findViewById(R.id.textView1);
 
 		// start bluetooth stuff
 
@@ -302,7 +318,101 @@ public class DisplayActivity extends ActionBarActivity {
         // 	btSocket.connect();
 		
 		Toast.makeText(DisplayActivity.this, "connection made :)",Toast.LENGTH_SHORT).show();  // attempting to connect
+		try {
+			mmOutputStream = btSocket.getOutputStream();
+			
+			mmInputStream = btSocket.getInputStream();
+			myLabel.setText("Bluetooth Opened");
+			beginListenForData();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    
+		
+	    
+        /* this is a method used to read what the Arduino says for example when you write Serial.print("Hello world.") in your Arduino code */
+
 	}
+	
+	
+	//listeeeen
+	void beginListenForData() {
+	    final Handler handler = new Handler(); 
+	    final byte delimiter = 10; //This is the ASCII code for a newline character
+	    Log.d("sigh", "begin's night was entered");
+	    Log.d("sigh", handler.toString());
+
+	    stopWorker = false;
+	    readBufferPosition = 0;
+	    readBuffer = new byte[1024];
+	    workerThread = new Thread(new Runnable() {
+	      public void run() {
+	  	    Log.d("cool", "entered first run");
+	  	    if(!Thread.currentThread().isInterrupted()){
+	  	    Log.d("cool", "current thread not interrupted :)");
+	  	    }
+	  	    if(!stopWorker){
+		  	    Log.d("cool", "stop worker is false :)");
+		  	}
+	  	  try {
+			Log.d("bytes challenge", String.valueOf(mmInputStream.available()));
+	
+			Log.d("bytes challenge", mmInputStream.toString());
+			Log.d("bytes challenge", mmOutputStream.toString());
+
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	         while(!Thread.currentThread().isInterrupted() && !stopWorker) {
+	          try {
+	            int bytesAvailable = mmInputStream.available();    
+				Log.d("bytes challenge", String.valueOf(mmInputStream.available()));
+
+
+	            if(bytesAvailable > 0) {
+                    myLabel.setText("i should be reading data");
+
+	              byte[] packetBytes = new byte[bytesAvailable];
+	              mmInputStream.read(packetBytes);
+	              for(int i=0;i<bytesAvailable;i++) {
+	                byte b = packetBytes[i];
+	                if(b == delimiter) {
+	                  byte[] encodedBytes = new byte[readBufferPosition];
+	                  System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
+	                  final String data = new String(encodedBytes, "US-ASCII");
+	                  readBufferPosition = 0;
+
+	                  handler.post(new Runnable() {
+	                    public void run() {
+	                      myLabel.setText("za bank");
+	                    }
+	                  });
+	                }
+	                else {
+	                  readBuffer[readBufferPosition++] = b;
+	                }
+	              }
+	            }
+	          } 
+	          catch (IOException ex) {
+	            stopWorker = true;
+	          }
+	           try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	         }
+	      }
+	    });
+
+	    workerThread.start();
+	  }
 
 
 

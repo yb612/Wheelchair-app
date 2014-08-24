@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -338,81 +339,128 @@ public class DisplayActivity extends ActionBarActivity {
 	
 	
 	//listeeeen
-	void beginListenForData() {
-	    final Handler handler = new Handler(); 
-	    final byte delimiter = 10; //This is the ASCII code for a newline character
-	    Log.d("sigh", "begin's night was entered");
-	    Log.d("sigh", handler.toString());
+		void beginListenForData() {
+		     
+		    final byte delimiter = 10; //This is the ASCII code for a newline character
+		    Log.d("sigh", "begin's night was entered");
+		    Log.d("sigh", handler.toString());
 
-	    stopWorker = false;
-	    readBufferPosition = 0;
-	    readBuffer = new byte[1024];
-	    workerThread = new Thread(new Runnable() {
-	      public void run() {
-	  	    Log.d("cool", "entered first run");
-	  	    if(!Thread.currentThread().isInterrupted()){
-	  	    Log.d("cool", "current thread not interrupted :)");
-	  	    }
-	  	    if(!stopWorker){
-		  	    Log.d("cool", "stop worker is false :)");
-		  	}
-	  	  try {
-			Log.d("bytes challenge", String.valueOf(mmInputStream.available()));
-	
-			Log.d("bytes challenge", mmInputStream.toString());
-			Log.d("bytes challenge", mmOutputStream.toString());
-
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	         while(!Thread.currentThread().isInterrupted() && !stopWorker) {
-	          try {
-	            int bytesAvailable = mmInputStream.available();    
-				Log.d("bytes challenge", String.valueOf(mmInputStream.available()));
+		    stopWorker = false;
+		    readBufferPosition = 0;
+		    readBuffer = new byte[1024];
+		    int readMessageLimit = 512;
+		    workerThread = new Thread(new Runnable() {
+		      public void run() {
+		  	    Log.d("cool", "entered first run");
+		  	    int begin = 0;
+		  	    int bytes = 0; 
+		         while(!stopWorker) {
+		          try {
+		            //int bytesAvailable = mmInputStream.available();    
+		           /// int bytesAvailable = mmInputStream.read(readBuffer); //trying a blocking call instead    
+					//Log.d("bytes challenge", String.valueOf(bytesAvailable));
 
 
-	            if(bytesAvailable > 0) {
-                    myLabel.setText("i should be reading data");
+					bytes += mmInputStream.read(readBuffer, bytes, readBuffer.length - bytes); 
 
-	              byte[] packetBytes = new byte[bytesAvailable];
-	              mmInputStream.read(packetBytes);
-	              for(int i=0;i<bytesAvailable;i++) {
-	                byte b = packetBytes[i];
-	                if(b == delimiter) {
-	                  byte[] encodedBytes = new byte[readBufferPosition];
-	                  System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
-	                  final String data = new String(encodedBytes, "US-ASCII");
-	                  readBufferPosition = 0;
+		      
+	                  
 
-	                  handler.post(new Runnable() {
-	                    public void run() {
-	                      myLabel.setText("za bank");
-	                    }
-	                  });
-	                }
-	                else {
-	                  readBuffer[readBufferPosition++] = b;
-	                }
-	              }
-	            }
-	          } 
-	          catch (IOException ex) {
-	            stopWorker = true;
-	          }
-	           try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		             // byte[] packetBytes = new byte[bytesAvailable];
+		           //   byte[] logArray = new byte[bytesAvailable];
+					//	Log.d("sing", "up to here ok");
+		             // System.arraycopy(readBuffer, 0, logArray, 0, bytesAvailable); //test
+		           //   Log.d("things", "Read Hex: " + getHex(logArray)+ "Read Dec: "+getDec(logArray));  //test
+		              for(int i = begin; i < bytes; i++) {            //int i=0;i<bytesAvailable;i++
+		               //   final byte a = packetBytes[i];
+		            	  final byte b = readBuffer[i]; //test
+		            	  
+		            	  
+		            	  if(readBuffer[i] == "#".getBytes()[0]) {
+		            		  handler.obtainMessage(1, begin, i, readBuffer).sendToTarget(); 
+		            		  begin = i + 1; 
+		            		  if(i == bytes - 1) { 
+		            		  bytes = 0; 
+		            		  begin = 0; 
+		            		  } 
+
+		            	  }
+		            	 // Log.d("entering for", "i should be reading"+ b);
+		            	  
+		            	 
+		            	 // Log.d("old for", "i should be reading"+ a);
+		            	  
+		              /*  if(b == delimiter) {
+		                  byte[] encodedBytes = new byte[readBufferPosition];
+		                  System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
+		                  final String data = new String(encodedBytes, "US-ASCII");
+		                  readBufferPosition = 0;
+
+		                  handler.post(new Runnable() {
+		                    public void run() {
+		                      myLabel.setText("some thing");
+		                    }
+		                  });
+		                } */
+		                
+		              } 
+		            
+		          } 
+		          catch (IOException ex) {
+		            stopWorker = true;
+		          }
+		          
+		         }
+		      }
+		    });
+
+		    workerThread.start();
+		    
+		    
+		  }
+
+		final Handler handler = new Handler(){
+	    	@Override 
+	    	public void handleMessage(Message msg) { 
+	    	byte[] writeBuf = (byte[]) msg.obj; 
+	    	int begin = (int)msg.arg1; 
+	    	int end = (int)msg.arg2; 
+	    	 
+	    	switch(msg.what) { 
+	    	case 1: 
+	    	String writeMessage = new String(writeBuf); 
+	    	writeMessage = writeMessage.substring(begin, end); 
+	    	Log.d("yakhalasi freska", writeMessage);
+
+			    	myLabel.setText(writeMessage); //testing display
+
+
+	    	break; 
+	    	} 
+	    	} 
+	    };
+
+		private static String getDec(byte[] bytes){
+			StringBuilder sb = new StringBuilder();
+			sb.append("[");
+			for (byte b : bytes) {
+				sb.append((b & 0xFF) + ", ");
 			}
-	         }
-	      }
-	    });
+			sb.delete(sb.length()-2, sb.length());
+			sb.append("]");
+			return sb.toString();
+		}
 
-	    workerThread.start();
-	  }
+		private static String getHex(byte[] bytes){
+			StringBuilder sb = new StringBuilder();
+			sb.append("[");
+			for (byte b : bytes) {
+				sb.append("0x" + String.format("%02X, ", b));
+			}
+			sb.delete(sb.length()-2, sb.length());
+			sb.append("]");
+			return sb.toString();
+		}
 
 
 
@@ -520,4 +568,23 @@ public class DisplayActivity extends ActionBarActivity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
+
+
+	@Override
+	protected void onPause() {
+	    super.onPause();
+
+	    unregisterReceiver(mReceiver);
+	}
+
+	@Override
+	protected void onResume() {
+	    super.onResume();
+	    IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+	    registerReceiver(mReceiver, filter); 
+	}
+
+
 }
+
+

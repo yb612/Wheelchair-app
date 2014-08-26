@@ -79,7 +79,9 @@ public class DisplayActivity extends ActionBarActivity {
 	private BluetoothAdapter mBluetoothAdapter; // object to btoot with
 	public static final UUID MY_UUID = UUID
 			.fromString("00001101-0000-1000-8000-00805F9B34FB");//   
-	
+	DbxPath logPath = new DbxPath("/test.txt"); // log to file variables
+	DbxFileSystem logDbFx = null;
+	DbxFile logFile = null;
 	
 	volatile boolean stopWorker = false;
 	Thread workerThread;
@@ -433,8 +435,17 @@ public class DisplayActivity extends ActionBarActivity {
 	    	Log.d("yakhalasi freska", writeMessage);
 
 			    	myLabel.setText(writeMessage); //testing display
+				try {
+			    	
+					logFile.appendString(writeMessage);
+			    	Log.d("shee2 gameel ", writeMessage);
 
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 
+			    
 	    	break; 
 	    	} 
 	    	} 
@@ -532,6 +543,7 @@ public class DisplayActivity extends ActionBarActivity {
 											return;
 										}
 										p = new DbxPath("/" + filename);
+										logPath = p; //logging
 									} catch (DbxPath.InvalidPathException e) {
 										// TODO: build a custom dialog that
 										// won't even allow invalid filenames
@@ -547,7 +559,9 @@ public class DisplayActivity extends ActionBarActivity {
 										dbxFs = DbxFileSystem
 												.forAccount(mDbxAcctMgr
 														.getLinkedAccount());
+										logDbFx = dbxFs; // logging
 										testFile = dbxFs.create(p);
+										logFile = testFile; //logging
 										Toast.makeText(DisplayActivity.this,
 												"file created",
 												Toast.LENGTH_LONG).show();
@@ -559,6 +573,7 @@ public class DisplayActivity extends ActionBarActivity {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
 										testFile.close();
+										logFile.close();
 									}
 
 								}

@@ -1,9 +1,11 @@
 package com.urop.wheelchair;
 
 //over here the layout would be sectioned into different parts to convey data to the user
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -86,11 +88,11 @@ public class DisplayActivity extends ActionBarActivity {
 	volatile boolean stopWorker = false;
 	Thread workerThread;
 	int readBufferPosition = 0;
-	byte[] readBuffer = new byte[1024];
+	byte[] readBuffer;
 	int counter;
-	OutputStream mmOutputStream;
-	InputStream mmInputStream;
-	
+	OutputStream mmOutputStream = null;
+	InputStream mmInputStream = null;
+	int testing = 0; 
 	BluetoothDevice gDevice;
 
 	private ListView listViewPairedDevices = null;
@@ -106,7 +108,7 @@ public class DisplayActivity extends ActionBarActivity {
 		mUnlink = (Button) findViewById(R.id.button2);
 		mConnect = (Button) findViewById(R.id.button3);
 		mDisconnect = (Button) findViewById(R.id.button4);
-		Result = (TextView) findViewById(R.id.textView2);
+		
 		myLabel = (TextView)findViewById(R.id.textView1);
 
 		// start bluetooth stuff
@@ -240,6 +242,7 @@ public class DisplayActivity extends ActionBarActivity {
 				// TODO Auto-generated method stub
 				Toast.makeText(DisplayActivity.this, "disconnect pressed",Toast.LENGTH_SHORT).show();  // attempting to connect
 				DisConnect();
+				logFile.close();
 			}
 
 		});
@@ -349,8 +352,9 @@ public class DisplayActivity extends ActionBarActivity {
 
 		    stopWorker = false;
 		    readBufferPosition = 0;
-		    readBuffer = new byte[1024];
+		    readBuffer = new byte[16384];
 		    int readMessageLimit = 512;
+		    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 		    workerThread = new Thread(new Runnable() {
 		      public void run() {
 		  	    Log.d("cool", "entered first run");
@@ -361,12 +365,19 @@ public class DisplayActivity extends ActionBarActivity {
 		            //int bytesAvailable = mmInputStream.available();    
 		           /// int bytesAvailable = mmInputStream.read(readBuffer); //trying a blocking call instead    
 					//Log.d("bytes challenge", String.valueOf(bytesAvailable));
+		        	  if((readBuffer.length-bytes) <= 38){
+		        		  readBuffer = null;
+		        		  readBuffer = new byte[8192];
+		      		    bytes = 0;
+				  	    Log.d("hawa", "this is new read: "+String.valueOf(mmInputStream.read(readBuffer, bytes, readBuffer.length - bytes)));
 
-
+		        	  }
+				    Log.d("available", "this is available: "+String.valueOf(mmInputStream.available()));
 					bytes += mmInputStream.read(readBuffer, bytes, readBuffer.length - bytes); 
-
-		      
-	                  
+					testing = bytes;
+			  	    Log.d("Termes", "this is bytes: "+String.valueOf(bytes));
+			  	    Log.d("condition", "this is condition: "+String.valueOf(readBuffer.length-bytes));
+			  	    Log.d("Kam?", "this is buffer: "+readBuffer.toString());
 
 		             // byte[] packetBytes = new byte[bytesAvailable];
 		           //   byte[] logArray = new byte[bytesAvailable];
@@ -421,37 +432,48 @@ public class DisplayActivity extends ActionBarActivity {
 		    
 		  }
 
-		final Handler handler = new Handler(){
-	    	@Override 
-	    	public void handleMessage(Message msg) { 
-	    	byte[] writeBuf = (byte[]) msg.obj; 
-	    	int begin = (int)msg.arg1; 
-	    	int end = (int)msg.arg2; 
-	    	 
-	    	switch(msg.what) { 
-	    	case 1: 
-	    	String writeMessage = new String(writeBuf); 
-	    	writeMessage = writeMessage.substring(begin, end); 
-	    	Log.d("yakhalasi freska", writeMessage);
+		Handler handler = new Handler(new Handler.Callback() 
+		{       
+		    @Override
+		    public boolean handleMessage(Message msg) 
+		    {   
+		    	byte[] writeBuf = (byte[]) msg.obj; 
+		    	int begin = (int)msg.arg1; 
+		    	int end = (int)msg.arg2; 
+		    	final String data;
+		    	switch(msg.what) { 
+		    	case 1: 
+		    	String writeMessage = new String(writeBuf); 
+		    	writeMessage = writeMessage.substring(begin, end); 
+		    	Log.d("yakhalasi freska", writeMessage);
 
-			    	myLabel.setText(writeMessage); //testing display
-				try {
-			    	
-					logFile.appendString(writeMessage);
-			    	Log.d("shee2 gameel ", writeMessage);
+				data = writeMessage;    	
+					
+				    	
+				    	try {
+				    	
+						logFile.appendString(writeMessage);
+				    	Log.d("shee2 gameel ", writeMessage);
+				  	    Log.d("TERMES", "this is final bytes: "+String.valueOf(testing));
+				  	    runOnUiThread(new Runnable() {
+				    	    public void run() {                     
+				    	        // your code to update the UI thread here   
+				    	    	myLabel.setText(data); //testing display
+				    	    }
+				    	});
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				    
+		    	break; 
+		    	} 
+		        return false;      // RETURN VALUE ????
+		    }
+		});
 
-			    
-	    	break; 
-	    	} 
-	    	} 
-	    };
-
-		private static String getDec(byte[] bytes){
+	/*	private static String getDec(byte[] bytes){
 			StringBuilder sb = new StringBuilder();
 			sb.append("[");
 			for (byte b : bytes) {
@@ -473,7 +495,7 @@ public class DisplayActivity extends ActionBarActivity {
 			return sb.toString();
 		}
 
-
+*/
 
 	private void printf() {// using this to check if user link carries on
 		Toast.makeText(this, "hello", Toast.LENGTH_SHORT).show();

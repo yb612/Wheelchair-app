@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-     <string name="app_name">wheelchair</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">wheelchair</string>
+    <string name="unlink_db">Unlink DB</string>
+    <string name="link_db">Link to DropBox</string>
+    <string name="start">Start</string>
+    <string name="list_files">List Files</string>
+    <string name="link_status">Link Status</string>
+    <string name="connect_bt">Connect BT</string>
+    <string name="disconnect_bt">Disconnect BT</string>
+    <string name="values">Values will be displayed here</string>
     <string name="action_new">Create New</string>
     <string name="action_settings">Settings</string>
     <string name="action_unlink">Unlink</string>
@@ -13,6 +20,7 @@
     <string name="new_note_dialog_title">New note:</string>
     <string name="new_note_name_hint">my_note</string>
     <string name="new_note_confirm">Create</string>
+
     <string-array name="select_option">
         <item>View</item>
         <item>Rename</item>

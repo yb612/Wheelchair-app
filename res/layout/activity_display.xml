@@ -15,7 +15,7 @@
         android:layout_alignBaseline="@+id/button2"
         android:layout_alignBottom="@+id/button2"
         android:layout_alignParentRight="true"
-        android:text="check if still linked" />
+        android:text="@string/link_status" />
 
     <TextView
         android:id="@+id/textView1"
@@ -23,16 +23,8 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:text="Values will be displayed here" />
-
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/textView1"
-        android:layout_marginLeft="15dp"
-        android:text="Unlink" />
+        android:text="@string/values"
+        android:textSize="@dimen/Large" />
 
     <ListView
         android:id="@+id/listViewPairedDevices"
@@ -48,19 +40,18 @@
         android:id="@+id/button4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/button3"
-        android:layout_alignBottom="@+id/button3"
-        android:layout_alignRight="@+id/button1"
-        android:text="Disconnect" />
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="@string/disconnect_bt" />
 
-    <TextView
-        android:id="@+id/textView2"
+    <Button
+        android:id="@+id/button2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/button2"
-        android:layout_below="@+id/button3"
-        android:layout_marginTop="17dp"
-        android:text="something" />
+        android:layout_above="@+id/button4"
+        android:layout_alignLeft="@+id/listViewPairedDevices"
+        android:layout_marginBottom="52dp"
+        android:text="@string/unlink_db" />
 
     <Button
         android:id="@+id/button3"
@@ -68,6 +59,6 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/button2"
         android:layout_below="@+id/button2"
-        android:text="connect" />
+        android:text="@string/connect_bt" />
 
 </RelativeLayout>
